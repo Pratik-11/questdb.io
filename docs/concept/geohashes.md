@@ -480,43 +480,45 @@ geohashes in text mode (i.e. as strings) as opposed to binary
 :::
 
 ```python
-import psycopg2 as pg
-import datetime as dt
+import psycopg as pg
+import time
 
-try:
-    connection = pg.connect(user="admin",
-                            password="quest",
-                            host="127.0.0.1",
-                            port="8812",
-                            database="qdb")
-    cursor = connection.cursor()
+# Connect to an existing QuestDB instance
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS geo_data
-      (ts timestamp, device_id symbol index, g1c geohash(1c), g8c geohash(8c))
-      timestamp(ts);""")
+conn_str = 'user=admin password=quest host=127.0.0.1 port=8812 dbname=qdb'
+with pg.connect(conn_str, autocommit=True) as connection:
 
-    cursor.execute("INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b12');")
-    cursor.execute("INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b18');")
-    cursor.execute("INSERT INTO geo_data values(now(), 'device_2', 'e', 'ezzn5kxb');")
-    cursor.execute("INSERT INTO geo_data values(now(), 'device_3', 'e', 'u33dr01d');")
-    # commit records
-    connection.commit()
+    # Open a cursor to perform database operations
 
-    print("Data in geo_data table:")
-    cursor.execute("SELECT * FROM geo_data;")
-    records = cursor.fetchall()
-    for row in records:
+    with connection.cursor() as cur:
+
+      cur.execute('''
+        CREATE TABLE IF NOT EXISTS geo_data (
+          ts timestamp, 
+          device_id symbol index, 
+          g1c geohash(1c), 
+          g8c geohash(8c)
+          )
+          timestamp(ts);
+          ''')
+      print('Table created.')
+      
+      cur.execute('INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b12');')
+      cur.execute('INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b18');')
+      cur.execute('INSERT INTO geo_data values(now(), 'device_2', 'e', 'ezzn5kxb');')
+      cur.execute('INSERT INTO geo_data values(now(), 'device_3', 'e', 'u33dr01d');')
+
+      print('Data in geo_data table:')
+      cur.execute('SELECT * FROM geo_data;')
+      records = cur.fetchall()
+      for row in records:
         print(row)
 
-    print("Records within 'u33d' geohash:")
-    cursor.execute("SELECT * FROM geo_data WHERE g8c within(#u33d) LATEST ON ts PARTITION BY device_id;")
-    records = cursor.fetchall()
-    for row in records:
-        print(row)
+      print('Records within 'u33d' geohash:')
+      cur.execute('SELECT * FROM geo_data WHERE g8c within(#u33d) LATEST ON ts PARTITION BY device_id;')
+      records = cursor.fetchall()
+      for row in records:
+          print(row)
 
-finally:
-    if (connection):
-        cursor.close()
-        connection.close()
-        print("QuestDB connection closed")
+# the connection is now closed
 ```
