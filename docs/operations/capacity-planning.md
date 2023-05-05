@@ -57,7 +57,7 @@ QuestDB database.
 
 ### Write amplification
 
-When ingesting out-of-order data, high disk write rate combined with high write
+When ingesting out-of-order data, a high disk write rate combined with high write
 amplification may slow down the performance.
 
 For data ingestion over PGWire, or as a further step for ILP ingestion, smaller
@@ -76,6 +76,26 @@ partition by month to by day, and so on.
 
 :::
 
+#### Auto-partitioning
+
+From QuestDB 7.2, heavily out-of-order commits are split into two partitions to
+reduce write amplification. For a merge partition to be inserted, a partition
+will be split into two partitions: the prefix partition and the suffix
+partition. The `TableReader` only reads the prefix partition.
+
+A partition split happens when both of the following are true:
+
+- The prefix partition size is bigger than the combination of the suffix
+  partition and the rows to be merged
+- The estimated prefix partition size on disk is higher than
+  `cairo.o3.partition.split.min.size` (50MB by default).
+
+A partition can be split into more than two sub-partitions. The last partition
+piece is squashed back into the main partition when the total number of
+partition pieces exceeds `cairo.o3.last.partition.max.splits` (20 by default).
+For all the partition pieces except the last piece, the QuestDB engine squashes
+them aggressively to maintain only 1 physical partition.
+
 ## CPU and RAM configuration
 
 This section describes configuration strategies based on the forecast behavior
@@ -93,11 +113,11 @@ read operations.
 
 ### Memory page size configuration
 
-For frequent out-of-order (O3) writes over high number of columns/tables, the
+For frequent out-of-order (O3) writes over a high number of columns/tables, the
 performance may be impacted by the size of the memory page being too big as this
 increases the demand for RAM. The memory page, `cairo.o3.column.memory.size`, is
 set to 8M by default. This means that the table writer uses 16MB (2x8MB) RAM per
-each column when it receives O3 writes. Decreasing the value in the interval of
+ column when it receives O3 writes. Decreasing the value in the interval of
 [128K, 8M] based on the number of columns used may improve O3 write performance.
 
 ### CPU cores
@@ -126,7 +146,8 @@ The number of worker threads shared across the application can be configured as
 well as affinity to pin processes to specific CPUs by ID. Shared worker threads
 service SQL execution subsystems and, in the default configuration, every other
 subsystem. More information on these settings can be found on the
-[shared worker](/docs/reference/configuration/#shared-worker) configuration page.
+[shared worker](/docs/reference/configuration/#shared-worker) configuration
+page.
 
 QuestDB will allocate CPU resources differently depending on how many CPU cores
 are available. This default can be overridden via configuration. We recommend at
@@ -139,8 +160,7 @@ InfluxDB line protocol (ILP) writer which gets a dedicated CPU core. The worker
 count is calculated as follows:
 
 $(cpuAvailable) - (line.tcp.writer.worker.count)$
-
-Minimal size of the shared worker pool is 2, even on a single-core machine.
+The minimal size of the shared worker pool is 2, even on a single-core machine.
 
 #### 16 CPU cores or less
 
@@ -170,7 +190,7 @@ $32-2-6-1$
 
 The default page size for writers is 16MB. In cases where there are a large
 number of small tables, using 16MB to write a maximum of 1MB of data, for
-example, is a waste of OS resources. To changes the default value, set the
+example, is a waste of OS resources. To change the default value, set the
 `cairo.writer.data.append.page.size` value in `server.conf`:
 
 ```ini title="server.conf"
@@ -239,7 +259,7 @@ And `<config>` is one of the following settings:
 | `sndbuf`  | Maximum send buffer size on each TCP socket. If value is -1 socket send buffer remains unchanged from OS default.                                                                                                          |
 | `rcvbuf`  | Maximum receive buffer size on each TCP socket. If value is -1, the socket receive buffer remains unchanged from OS default.                                                                                               |
 
-For example, this is configuration for Linux with relatively low number of
+For example, this is the configuration for Linux with a relatively low number of
 concurrent connections:
 
 ```ini title="server.conf InfluxDB line protocol network example configuration for moderate number of concurrent connections"
@@ -255,8 +275,8 @@ line.tcp.net.connection.timeout=60000
 line.tcp.net.rcvbuf=4m
 ```
 
-Let's assume you would like to configure InfluxDB line protocol for large number
-of concurrent connection on Windows:
+Let's assume you would like to configure InfluxDB line protocol for a large number
+of concurrent connections on Windows:
 
 ```ini title="server.conf InfluxDB line protocol network example configuration for large number of concurrent connections on Windows"
 # bind to specific NIC on port 9009, NIC is identified by IP address
@@ -299,11 +319,11 @@ done in response to such OS errors.
 The storage model of QuestDB has the benefit that most data structures relate
 closely to the file system, with columnar data being stored in its own `.d` file
 per partition. In edge cases with extremely large tables, frequent out-of-order
-ingestion, or high number of table partitions, the number of open files may hit
+ingestion, or a high number of table partitions, the number of open files may hit
 a user or system-wide maximum limit and can cause unpredictable behavior.
 
 The following commands allow for checking current user and system limits for
-maximum number of open files:
+the maximum number of open files:
 
 ```bash title="checking ulimit"
 # Soft limit
@@ -333,8 +353,8 @@ sysctl fs.file-max
 
 ### Max virtual memory areas limit
 
-If the host machine has insufficient limits of map areas, this may result in out
-of memory exceptions. To increase this value and have the configuration
+If the host machine has insufficient limits of map areas, this may result in out-
+of-memory exceptions. To increase this value and have the configuration
 persistent, mapped memory area limits can be changed in `/etc/sysctl.conf`:
 
 ```ini title="/etc/sysctl.conf"
