@@ -22,6 +22,7 @@ columns**!
 ## Syntax
 
 ![Flow chart showing the syntax of the ALTER TABLE keyword](/img/docs/diagrams/alterTable.svg)
+
 ![Flow chart showing the syntax of ALTER TABLE with DROP COLUMN keyword](/img/docs/diagrams/alterTableDropColumn.svg)
 
 ## Example
