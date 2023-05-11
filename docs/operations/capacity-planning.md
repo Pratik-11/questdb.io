@@ -88,7 +88,7 @@ A partition split happens when both of the following are true:
 - The prefix partition size is bigger than the combination of the suffix
   partition and the rows to be merged
 - The estimated prefix partition size on disk is higher than
-  `cairo.o3.partition.split.min.size` (50MB by default).
+  `cairo.o3.partition.split.min.size` (1TB by default).
 
 A partition can be split into more than two sub-partitions. The last partition
 piece is squashed back into the main partition when the total number of
