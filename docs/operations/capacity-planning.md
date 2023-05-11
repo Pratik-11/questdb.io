@@ -78,10 +78,10 @@ partition by month to by day, and so on.
 
 #### Auto-partitioning
 
-From QuestDB 7.2, heavily out-of-order commits are split into two partitions to
-reduce write amplification. For a merge partition to be inserted, a partition
+From QuestDB 7.2, heavily out-of-order commits can split the partitions into parts to
+reduce write amplification. When data is merged into an existing partition because of out-of-order insert the partition
 will be split into two partitions: the prefix partition and the suffix
-partition. The `TableReader` only reads the prefix partition.
+partition.
 
 A partition split happens when both of the following are true:
 
