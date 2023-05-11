@@ -90,8 +90,18 @@ A partition split happens when both of the following are true:
 - The estimated prefix partition size on disk is higher than
   `cairo.o3.partition.split.min.size` (1TB by default).
 
-For example, the following settings and partition details can trigger partition
-split:
+A partition can be split into more than two parts. The last (year, ..., hour)
+partition is squashed back into the main partition when the total number of
+partition parts exceeds `cairo.o3.last.partition.max.splits` (20 by default).
+For all the partitions except the last (year, ..., hour), the QuestDB engine
+squashes them aggressively to maintain only one physical partition.
+
+The SQL keyword [SHOW PARTITIONS](/docs/reference/sql/show/) can be used to
+display partition split details.
+
+##### Partition split example
+
+Considering an example of the following settings and partition details:
 
 - `cairo.o3.partition.split.min.size` set to 50MB
 - `cairo.o3.last.partition.max.splits` set to 20
@@ -104,15 +114,6 @@ into 2 parts:
 
 - Prefix: `2023-01-01.1` with 23,000 rows
 - Suffix (including the merged row):`2023-01-01T75959-999999.2` with 1,001 rows
-
-A partition can be split into more than two parts. The last part is squashed
-back into the main partition when the total number of partition parts exceeds
-`cairo.o3.last.partition.max.splits` (20 by default). For all the partition
-parts except the last part, the QuestDB engine squashes them aggressively to
-maintain only one physical partition.
-
-The SQL keyword [SHOW PARTITIONS](/docs/reference/sql/show/) can be used to
-display partition split details.
 
 ## CPU and RAM configuration
 
