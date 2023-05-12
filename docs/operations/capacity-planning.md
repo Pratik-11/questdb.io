@@ -81,30 +81,45 @@ partition by month to by day, and so on.
 From QuestDB 7.2, heavily out-of-order commits can split the partitions into
 parts to reduce write amplification. When data is merged into an existing
 partition as a result of an out-of-order insert, the partition will be split
-into two partitions: the prefix partition and the suffix partition.
+into two parts: the prefix sub-partition and the suffix sub-partition.
 
 A partition split happens when both of the following are true:
 
-- The prefix partition size is bigger than the combination of the suffix
-  partition and the rows to be merged.
-- The estimated prefix partition size on disk is higher than
-  `cairo.o3.partition.split.min.size` (1TB by default).
+- The prefix size is bigger than the size of the suffix and the rows to be
+  merged combined.
+- The estimated prefix size on disk is higher than
+  `cairo.o3.partition.split.min.size` (50MB by default).
 
-A partition can be split into more than two parts. The last (year, ..., hour)
-partition is squashed back into the main partition when the total number of
-partition parts exceeds `cairo.o3.last.partition.max.splits` (20 by default).
-For all the partitions except the last (year, ..., hour), the QuestDB engine
-squashes them aggressively to maintain only one physical partition.
+Partition split is iterative and therefore a partition can be split into more
+than two parts after several commits. To control the number of parts QuestDB
+squashes them together following the following principals:
+
+- For the last (yearly, ..., hourly) partition, its parts are squashed together
+  when the number of parts exceeds `cairo.o3.last.partition.max.splits` (20 by
+  default).
+- For all the partitions except the last one, the QuestDB engine squashes them
+  aggressively to maintain only one physical partition at the end of every
+  commit.
 
 The SQL keyword [SHOW PARTITIONS](/docs/reference/sql/show/) can be used to
 display partition split details.
 
+All partition operations (ALTER TABLE
+[ATTACH](/docs/reference/sql/alter-table-attach-partition/)/
+[DETACH](/docs/reference/sql/alter-table-detach-partition/)/
+[DROP](/docs/reference/sql/alter-table-drop-partition/) PARTITION) do not
+consider partition splits as individual partitions and work on the table
+partitioning unit (year, week, ..., hour).
+
+For example, when a daily partition consisting of several parts is dropped, all
+the parts belonging to the given date are dropped. Similarly, when the multipart
+daily partition is detached, it is squashed into a single piece first and then
+detached.
+
 ##### Partition split example
 
-Considering an example of the following settings and partition details:
+Considering an example of the following partition details:
 
-- `cairo.o3.partition.split.min.size` set to 50MB
-- `cairo.o3.last.partition.max.splits` set to 20
 - A partition `2023-01-01.1` with 1,000 rows every hour, and therefore 24,000
   rows in total.
 - Inserting one row with the timestamp `2023-01-01T23:00`
