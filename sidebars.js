@@ -132,12 +132,11 @@ module.exports = {
           href: "/blog/integrate-apache-spark-questdb-time-series-analytics",
         },
         {
-          label: "SQLAlchemy",
           customProps: {
             tag: "New",
           },
-          type: "link",
-          href: "/docs/third-party-tools/sqlalchemy",
+          type: "doc",
+          id: "third-party-tools/sqlalchemy",
         },
         "third-party-tools/telegraf",
       ],
