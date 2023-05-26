@@ -74,7 +74,6 @@ module.exports = {
         "guides/influxdb-migration",
         "guides/modifying-data",
         "guides/working-with-timestamps-timezones",
-        "guides/out-of-order-commit-lag",
         {
           label: "More tutorials",
           type: "link",
@@ -124,12 +123,18 @@ module.exports = {
         "third-party-tools/prometheus",
         "third-party-tools/redpanda",
         {
-          label: "Spark",
           customProps: {
             tag: "New",
           },
-          type: "link",
-          href: "/blog/integrate-apache-spark-questdb-time-series-analytics",
+          type: "doc",
+          id: "third-party-tools/spark",
+        },
+        {
+          customProps: {
+            tag: "New",
+          },
+          type: "doc",
+          id: "third-party-tools/superset",
         },
         {
           customProps: {

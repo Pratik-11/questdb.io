@@ -48,7 +48,6 @@ programming languages through our various network endpoints.
 - [Small CSV import (REST API)](/docs/guides/importing-data-rest/)
 - [Modifying Data](/docs/guides/modifying-data/)
 - [Timestamps and time zones](/docs/guides/working-with-timestamps-timezones/)
-- [Out-of-order commit lag](/docs/guides/out-of-order-commit-lag/)
 
 ## Deployment
 
@@ -91,8 +90,11 @@ utilities for collecting metrics and visualizing data:
 - [Prometheus](/docs/third-party-tools/prometheus/) monitoring and alerting
 - [Redpanda](/docs/third-party-tools/redpanda/) instructions for a Kafka
   compatible data streaming tool
+- [Spark](/docs/third-party-tools/spark/) for large-scale data engineering
 - [SQLAlchemy](/docs/third-party-tools/sqlalchemy/) guide for using the SQL
   toolkit with QuestDB
+- [Superset](/docs/third-party-tools/superset/) instructions for using Apache
+  Superset data visualization
 - [Telegraf](/docs/third-party-tools/telegraf/) guide for collecting system
   metrics, specifying QuestDB as an output and visualizing the results
 
