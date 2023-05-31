@@ -474,13 +474,12 @@ geohashes in text mode (i.e. as strings) as opposed to binary
 
 The Python example below demonstrates how to connect to QuestDB over postgres
 wire, insert and query geohashes. It uses the
-[psychopg3](https://www.psycopg.org/psycopg3/docs/) adapter and the
-[QuestDB Python client library](https://py-questdb-client.readthedocs.io/en/latest/installation.html).
+[psychopg3](https://www.psycopg.org/psycopg3/docs/) adapter.
 
-To install them, use `pip`:
+To install `psychopg3`, use `pip`:
 
 ```shell
-python3 -m pip install "psycopg[binary]" -U questdb
+python3 -m pip install "psycopg[binary]"
 ```
 
 ```python
@@ -502,10 +501,10 @@ with pg.connect(conn_str, autocommit=True) as connection:
           ''')
       print('Table created.')
 
-      cur.execute('''INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b12');''')
-      cur.execute('''INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b18');''')
-      cur.execute('''INSERT INTO geo_data values(now(), 'device_2', 'e', 'ezzn5kxb');''')
-      cur.execute('''INSERT INTO geo_data values(now(), 'device_3', 'e', 'u33dr01d');''')
+      cur.execute("INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b12');")
+      cur.execute("INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b18');")
+      cur.execute("INSERT INTO geo_data values(now(), 'device_2', 'e', 'ezzn5kxb');")
+      cur.execute("INSERT INTO geo_data values(now(), 'device_3', 'e', 'u33dr01d');")
       print('Data in geo_data table:')
       cur.execute('SELECT * FROM geo_data;')
       records = cur.fetchall()
@@ -516,6 +515,4 @@ with pg.connect(conn_str, autocommit=True) as connection:
       records = cur.fetchall()
       for row in records:
           print(row)
-# the connection is now closed
-
 ```

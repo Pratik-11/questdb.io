@@ -170,11 +170,9 @@ conn_str = 'user=admin password=quest host=127.0.0.1 port=8812 dbname=qdb'
 with pg.connect(conn_str, autocommit=True) as connection:
 
     # Open a cursor to perform database operations
-
     with connection.cursor() as cur:
 
         # Execute a command: this creates a new table
-
         cur.execute('''
           CREATE TABLE IF NOT EXISTS test_pg (
               ts TIMESTAMP,
@@ -186,11 +184,9 @@ with pg.connect(conn_str, autocommit=True) as connection:
         print('Table created.')
 
         # Insert data into the table.
-
         for x in range(10):
 
             # Converting datetime into millisecond for QuestDB
-
             timestamp = time.time_ns() // 1000
 
             cur.execute('''
@@ -201,24 +197,21 @@ with pg.connect(conn_str, autocommit=True) as connection:
 
         print('Rows inserted:')
 
-        #Query the database and obtain data as Python objects.
-
+        # Query the database and obtain data as Python objects.
         cur.execute('SELECT * FROM test_pg;')
         records = cur.fetchall()
         for row in records:
             print(row)
 
-    # Update records
+        # Update records
         cur.execute('UPDATE test_pg SET value = value + 100;')
         
-    #Query the database to show the updated values.
+        # Query the database to show the updated values.
         print("Updated data:")
         cur.execute('SELECT * FROM test_pg;')
         records = cur.fetchall()
         for row in records:
             print(row)
-
-# the connection is now closed
 ```
 </TabItem>
 
