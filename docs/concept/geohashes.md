@@ -468,57 +468,53 @@ restrictions apply.
 
 ## Postgres
 
-Geohashes may also be used over Postgres wire protocol as other data types. The
-Python example below demonstrates how to connect to QuestDB over postgres wire,
-insert and query geohashes:
-
-:::info
-
-When querying geohash values over Postgres wire protocol, QuestDB always returns
+Geohashes may also be used over Postgres wire protocol as other data types. When
+querying geohash values over Postgres wire protocol, QuestDB always returns
 geohashes in text mode (i.e. as strings) as opposed to binary
 
-:::
+The Python example below demonstrates how to connect to QuestDB over postgres
+wire, insert and query geohashes. It uses the
+[psychopg3](https://www.psycopg.org/psycopg3/docs/) adapter and the
+[QuestDB Python client library](https://py-questdb-client.readthedocs.io/en/latest/installation.html).
+
+To install them, use `pip`:
+
+```shell
+python3 -m pip install "psycopg[binary]" -U questdb
+```
 
 ```python
 import psycopg as pg
 import time
-
 # Connect to an existing QuestDB instance
-
 conn_str = 'user=admin password=quest host=127.0.0.1 port=8812 dbname=qdb'
 with pg.connect(conn_str, autocommit=True) as connection:
-
     # Open a cursor to perform database operations
-
     with connection.cursor() as cur:
-
       cur.execute('''
         CREATE TABLE IF NOT EXISTS geo_data (
-          ts timestamp, 
-          device_id symbol index, 
-          g1c geohash(1c), 
+          ts timestamp,
+          device_id symbol index,
+          g1c geohash(1c),
           g8c geohash(8c)
           )
           timestamp(ts);
           ''')
       print('Table created.')
-      
-      cur.execute('INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b12');')
-      cur.execute('INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b18');')
-      cur.execute('INSERT INTO geo_data values(now(), 'device_2', 'e', 'ezzn5kxb');')
-      cur.execute('INSERT INTO geo_data values(now(), 'device_3', 'e', 'u33dr01d');')
 
+      cur.execute('''INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b12');''')
+      cur.execute('''INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b18');''')
+      cur.execute('''INSERT INTO geo_data values(now(), 'device_2', 'e', 'ezzn5kxb');''')
+      cur.execute('''INSERT INTO geo_data values(now(), 'device_3', 'e', 'u33dr01d');''')
       print('Data in geo_data table:')
       cur.execute('SELECT * FROM geo_data;')
       records = cur.fetchall()
       for row in records:
         print(row)
-
-      print('Records within 'u33d' geohash:')
-      cur.execute('SELECT * FROM geo_data WHERE g8c within(#u33d) LATEST ON ts PARTITION BY device_id;')
-      records = cursor.fetchall()
+      print('Records within "u33d" geohash:')
+      cur.execute('''SELECT * FROM geo_data WHERE g8c within(#u33d) LATEST ON ts PARTITION BY device_id;''')
+      records = cur.fetchall()
       for row in records:
           print(row)
-
 # the connection is now closed
 ```
