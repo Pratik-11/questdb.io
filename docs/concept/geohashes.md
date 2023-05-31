@@ -502,17 +502,17 @@ with pg.connect(conn_str, autocommit=True) as connection:
           ''')
       print('Table created.')
 
-      cur.execute('''INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b12');''')
-      cur.execute('''INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b18');''')
-      cur.execute('''INSERT INTO geo_data values(now(), 'device_2', 'e', 'ezzn5kxb');''')
-      cur.execute('''INSERT INTO geo_data values(now(), 'device_3', 'e', 'u33dr01d');''')
+      cur.execute('INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b12');')
+      cur.execute('INSERT INTO geo_data values(now(), 'device_1', 'u', 'u33d8b18');')
+      cur.execute('INSERT INTO geo_data values(now(), 'device_2', 'e', 'ezzn5kxb');')
+      cur.execute('INSERT INTO geo_data values(now(), 'device_3', 'e', 'u33dr01d');')
       print('Data in geo_data table:')
       cur.execute('SELECT * FROM geo_data;')
       records = cur.fetchall()
       for row in records:
         print(row)
-      print('Records within "u33d" geohash:')
-      cur.execute('''SELECT * FROM geo_data WHERE g8c within(#u33d) LATEST ON ts PARTITION BY device_id;''')
+      print('Records within the "u33d" geohash:')
+      cur.execute('SELECT * FROM geo_data WHERE g8c within(#u33d) LATEST ON ts PARTITION BY device_id;')
       records = cur.fetchall()
       for row in records:
           print(row)
