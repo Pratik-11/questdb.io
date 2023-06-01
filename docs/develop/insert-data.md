@@ -34,6 +34,24 @@ QuestDB supports the following data ingestion methods:
 The table below outlines the general recommendation for data ingestion based on
 the shape of the data and different scenarios:
 
+| Date shape                | One-ff data import                | Periodical batch ingestion        | Real-time ingestion |
+| :------------------------ | :-------------------------------- | :-------------------------------- | :------------------ |
+| Sorted data               | - Web Console/REST API CSV upload | - ILP                             | ILP                 |
+|                           | - Web Console SQL COPY            | - PosgreSQL                       |                     |
+|                           |                                   | - Web Console/REST API CSV upload |                     |
+| Lightly unsorted data     | Web Console/REST API CSV upload   | - ILP                             | ILP                 |
+|                           |                                   | - PosgreSQL                       |                     |
+|                           |                                   | - Web Console/REST API CSV upload |                     |
+| Heavily out of order data | Web Console SQL COPY              | - ILP                             | ILP                 |
+|                           |                                   | - PosgreSQL                       |                     |
+|                           |                                   | - Web Console/REST API CSV upload |                     |
+
+The lightly unsorted data refers to data that meet both the following condition:
+
+- The expected lag is usually in the order of 10 minutes
+- The data is mostly sorted, i.e. timestamps are growing in time with occasional
+  exceptions that are within the lag
+
 ## InfluxDB Line Protocol (ILP)
 
 The InfluxDB Line Protocol (ILP) is a text protocol over TCP on port `9009`.
