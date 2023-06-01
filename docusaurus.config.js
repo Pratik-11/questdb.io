@@ -24,6 +24,7 @@ const config = {
     require.resolve("./plugins/optimize/index"),
     require.resolve("./plugins/manifest/index"),
     require.resolve("./plugins/delay-code-block-appearance"),
+    require.resolve("./plugins/glossary"),
     [
       "@docusaurus/plugin-pwa",
       {
@@ -263,6 +264,10 @@ const config = {
               label: "Slack Community",
               to: customFields.slackUrl,
             },
+            {
+              label: "Glossary",
+              to: "/glossary/",
+            }
           ],
         },
         {
@@ -291,10 +296,6 @@ const config = {
             {
               label: "Reddit",
               href: customFields.redditUrl,
-            },
-            {
-              label: "Discussions",
-              to: customFields.linenUrl,
             },
           ],
         },
