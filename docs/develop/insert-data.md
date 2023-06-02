@@ -17,17 +17,20 @@ QuestDB supports the following data ingestion methods:
   - [Client libraries](/docs/reference/clients/overview/) available
 - [PostgreSQL wire protocol](#postgresql-wire-protocol): interoperability with
   third-party tools and libraries.
+
   - SQL `INSERT` statements, including parameterized queries.
   - `psql` on the command line
-- [HTTP REST API via the Web Console](#web-console): user-friendly UI.
-  - SQL `INSERT` for ad-hoc SQL queries
-  - SQL `COPY` for one-off [database migration](/docs/guides/importing-data/)
-  - [CSV file upload](#uploading-csv-file) for batches of CSV files
+  - Most PostgreSQL
+
 - [HTTP REST API](#http-rest-api): compatibility with a wide range of libraries
   and tools.
   - SQL `INSERT` for ad-hoc SQL queries
   - `curl` command on the commend line
   - CSV file upload
+  - SQL `COPY` via the [Web Console](#web-console) for one-off
+    [database migration](/docs/guides/importing-data/)
+  - [CSV file upload via the Web Console](#uploading-csv-file) for batches of
+    CSV files
 
 ### Recommended insert method
 
@@ -39,18 +42,24 @@ the shape of the data and different scenarios:
 | Sorted data               | - Web Console/REST API CSV upload | - ILP                             | ILP                 |
 |                           | - Web Console SQL COPY            | - PosgreSQL                       |                     |
 |                           |                                   | - Web Console/REST API CSV upload |                     |
-| Lightly unsorted data     | Web Console/REST API CSV upload   | - ILP                             | ILP                 |
+| Lightly out of order data | Web Console/REST API CSV upload   | - ILP                             | ILP                 |
 |                           |                                   | - PosgreSQL                       |                     |
 |                           |                                   | - Web Console/REST API CSV upload |                     |
 | Heavily out of order data | Web Console SQL COPY              | - ILP                             | ILP                 |
 |                           |                                   | - PosgreSQL                       |                     |
 |                           |                                   | - Web Console/REST API CSV upload |                     |
 
-The lightly unsorted data refers to data that meet both the following condition:
+Lightly out of order data refers to data that meet both the following condition:
 
 - The expected lag is usually in the order of 10 minutes
-- The data is mostly sorted, i.e. timestamps are growing in time with occasional
+- The data is mostly sorted. Timestamps are growing in time with occasional
   exceptions that are within the lag
+
+Heavily out of order data refers to data meet both the following condition:
+
+- The expected lag exceeds the order of 10 minutes
+- The data is mostly unsorted. Timestamps are not ordered and often contain a
+  lag longer than 10 minutes.
 
 ## InfluxDB Line Protocol (ILP)
 
